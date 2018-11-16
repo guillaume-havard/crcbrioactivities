@@ -7,8 +7,8 @@ Analyse
 -------
 Analyse des données du fichier activité CRC
 
-1. Vérifier que les palettes reçues à 0 soient notées en statut « annulée ».
-Vérifier que toutes les commandes en statut « annulée » soient en palettes reçues à 0.
+1. Vérifier que le cumul des palettes reçues à 0 soient notées en statut « annulée ».
+Vérifier que toutes les commandes en tStatut « annulée » soient en palettes reçues à 0.
  
 2. Sélectionner les lignes sans « tDate livraison réelle » pour vérifier le type d’incident dont il s’agit.
 Si la date n’est pas présente ou inférieur au 1 janvier 2000 et que la livraison est en « livrée »,
