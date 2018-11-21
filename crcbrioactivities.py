@@ -37,8 +37,10 @@ if __name__ == "__main__":
         print()
 
     # Get columns id from header
+    header_list = []
     columns_id = {}
     for row in sheet.iter_rows(min_row=1, max_row=1):
+        header_list = list(row)
         columns_id = {cell.value: id for id, cell in enumerate(row)}
 
     print(columns_id)
@@ -69,3 +71,19 @@ if __name__ == "__main__":
         for cell in row:
             print(cell.value, end=", ")
         print()
+
+    # Creation of a workbook.
+    output_workbook = openpyxl.Workbook(write_only=True)
+
+    # Add the worsheet for palettes analysis.
+    palettes_worksheet = output_workbook.create_sheet("palettes")
+
+    palettes_worksheet.append(["Analyse palettes"])
+    palettes_worksheet.append([])
+    palettes_worksheet.append(["Lignes avec incohérences :"])
+    palettes_worksheet.append(header_list)
+    for row in erroneous_rows:
+        palettes_worksheet.append(row)
+
+    # save workbook.
+    output_workbook.save("analyse.xlsx")
