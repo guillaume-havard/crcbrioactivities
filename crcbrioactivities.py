@@ -1,6 +1,5 @@
 import openpyxl
-
-#TODO: Add log system
+import logging
 
 FILENAME = "tests/data/brio.xlsx"
 INITIAL_SHEET_NAME = "Sheet1"
@@ -11,6 +10,16 @@ STATUS_COLUMN_NAME = "tStatut"
 
 STATUS_OK = "livrée"
 STATUS_NOT_OK = "annulée"
+
+log = logging.getLogger(__name__)
+formatter = logging.Formatter(
+    "%(levelname)s %(asctime)s %(filename)s:%(lineno)d(%(funcName)s) %(message)s"
+)
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+log.addHandler(handler)
+log.setLevel(logging.DEBUG)
+
 
 if __name__ == "__main__":
     file = openpyxl.load_workbook(FILENAME, data_only=True)
@@ -40,7 +49,7 @@ if __name__ == "__main__":
         received_80_palettes_column = columns_id[RECEIVED_80_PALETTES_RECEIVED_COLUMN_NAME]
         status_column = columns_id[STATUS_COLUMN_NAME]
     except KeyError as error:
-        print("The following column is nowhere to be found:", error)
+        log.error("The following column is nowhere to be found:", error)
         # TODO: stop function
 
     erroneous_rows = []
