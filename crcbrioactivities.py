@@ -7,6 +7,7 @@ INITIAL_SHEET_NAME = "Sheet1"
 
 RECEIVED_100_PALETTES_RECEIVED_COLUMN_NAME = "Palettes sol 100*120 réellement reçues"
 RECEIVED_80_PALETTES_RECEIVED_COLUMN_NAME = "Palettes sol 80*120 réellement reçues"
+RECEIVED_80_EUR_PALETTES_RECEIVED_COLUMN_NAME = "Palettes EUR 80*120 réellement reçues"
 STATUS_COLUMN_NAME = "tStatut"
 
 STATUS_OK = "livrée"
@@ -37,6 +38,54 @@ def values_column_id(row: int):
         )
 
     return columns_id
+
+
+def analyse_nb_alettes_status(sheet, header_columns_id):
+    """
+    Analyse the sheet and return all rows where:
+     * received palettes == 0 and status != STATUS_NOT_OK
+     * received palettes != 0 and status == STATUS_NOT_OK
+
+    :param sheet: Sheet with all information.
+    :param header_columns_id: Dict of columns header with their id.
+
+    :return: List of rows to analyse.
+    """
+    try:
+        received_100_palettes_column = header_columns_id[RECEIVED_100_PALETTES_RECEIVED_COLUMN_NAME]
+        received_80_palettes_column = header_columns_id[RECEIVED_80_PALETTES_RECEIVED_COLUMN_NAME]
+        received_80_eur_palettes_column = header_columns_id[
+            RECEIVED_80_EUR_PALETTES_RECEIVED_COLUMN_NAME
+        ]
+        status_column = header_columns_id[STATUS_COLUMN_NAME]
+    except KeyError as error:
+        log.error("The following column is nowhere to be found:", error)
+        # TODO: stop function
+
+    erroneous_rows = []
+    for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row):
+        # TODO: test type of values
+        if row[received_80_palettes_column].value:
+            pal_80 = row[received_80_palettes_column].value
+        else:
+            pal_80 = 0
+        if row[received_100_palettes_column].value:
+            pal_100 = row[received_100_palettes_column].value
+        else:
+            pal_100 = 0
+        if row[received_80_eur_palettes_column].value:
+            pal_80_eur = row[received_80_eur_palettes_column].value
+        else:
+            pal_80_eur = 0
+
+        total_received_palettes = pal_80 + pal_100 + pal_80_eur
+
+        if total_received_palettes == 0 and row[status_column].value != STATUS_NOT_OK:
+            erroneous_rows.append(row)
+        elif total_received_palettes != 0 and row[status_column].value == STATUS_NOT_OK:
+            erroneous_rows.append(row)
+
+    return erroneous_rows
 
 
 if __name__ == "__main__":
