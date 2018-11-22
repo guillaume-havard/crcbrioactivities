@@ -1,5 +1,6 @@
 import openpyxl
 import logging
+import collections
 
 FILENAME = "tests/data/brio.xlsx"
 INITIAL_SHEET_NAME = "Sheet1"
@@ -19,6 +20,23 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 log.addHandler(handler)
 log.setLevel(logging.DEBUG)
+
+
+def values_column_id(row: int):
+    """
+    Generate an orderedDict {value: column id} for a row
+
+    :param row: Row for which you want to generate the dict
+
+    :return: The dict
+    """
+    columns_id = collections.OrderedDict()
+    for row_data in sheet.iter_rows(min_row=row, max_row=row):
+        columns_id = collections.OrderedDict(
+            [(cell.value, id_column) for id_column, cell in enumerate(row_data)]
+        )
+
+    return columns_id
 
 
 if __name__ == "__main__":
