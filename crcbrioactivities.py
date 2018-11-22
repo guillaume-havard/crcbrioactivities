@@ -126,26 +126,7 @@ if __name__ == "__main__":
     print()
     print(header_columns_id)
 
-    # Analyse 1 palettes and status
-    try:
-        received_100_palettes_column = header_columns_id[RECEIVED_100_PALETTES_RECEIVED_COLUMN_NAME]
-        received_80_palettes_column = header_columns_id[RECEIVED_80_PALETTES_RECEIVED_COLUMN_NAME]
-        status_column = header_columns_id[STATUS_COLUMN_NAME]
-    except KeyError as error:
-        log.error("The following column is nowhere to be found:", error)
-        # TODO: stop function
-
-    erroneous_rows = []
-    for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row):
-        # TODO: test type of values
-        total_received_palettes = (
-            row[received_80_palettes_column].value + row[received_100_palettes_column].value
-        )
-
-        if total_received_palettes == 0 and row[status_column].value != STATUS_NOT_OK:
-            erroneous_rows.append(row)
-        elif total_received_palettes != 0 and row[status_column].value == STATUS_NOT_OK:
-            erroneous_rows.append(row)
+    palettes_erroneous_rows = analyse_nb_alettes_status(sheet, header_columns_id)
 
     print("erroneous_rows")
     for row in erroneous_rows:
@@ -156,15 +137,7 @@ if __name__ == "__main__":
     # Creation of a workbook.
     output_workbook = openpyxl.Workbook(write_only=True)
 
-    # Add the worsheet for palettes analysis.
-    palettes_worksheet = output_workbook.create_sheet("palettes")
-
-    palettes_worksheet.append(["Analyse palettes"])
-    palettes_worksheet.append([])
-    palettes_worksheet.append(["Lignes avec incohérences :"])
-    palettes_worksheet.append(list(header_columns_id.keys()))
-    for row in erroneous_rows:
-        palettes_worksheet.append(row)
+    add_sheet_nb_palettes_status(output_workbook, header_columns_id, palettes_erroneous_rows)
 
     # save workbook.
     output_workbook.save("analyse.xlsx")
