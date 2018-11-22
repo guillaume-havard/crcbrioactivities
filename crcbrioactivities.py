@@ -54,20 +54,16 @@ if __name__ == "__main__":
             print(cell.value, end=", ")
         print()
 
-    # Get columns id from header
-    header_list = []
-    columns_id = {}
-    for row in sheet.iter_rows(min_row=1, max_row=1):
-        header_list = list(row)
-        columns_id = {cell.value: id for id, cell in enumerate(row)}
+    header_columns_id = values_column_id(row=1)
 
-    print(columns_id)
+    print()
+    print(header_columns_id)
 
-    # Analyse 1 paletettes ans status
+    # Analyse 1 palettes and status
     try:
-        received_100_palettes_column = columns_id[RECEIVED_100_PALETTES_RECEIVED_COLUMN_NAME]
-        received_80_palettes_column = columns_id[RECEIVED_80_PALETTES_RECEIVED_COLUMN_NAME]
-        status_column = columns_id[STATUS_COLUMN_NAME]
+        received_100_palettes_column = header_columns_id[RECEIVED_100_PALETTES_RECEIVED_COLUMN_NAME]
+        received_80_palettes_column = header_columns_id[RECEIVED_80_PALETTES_RECEIVED_COLUMN_NAME]
+        status_column = header_columns_id[STATUS_COLUMN_NAME]
     except KeyError as error:
         log.error("The following column is nowhere to be found:", error)
         # TODO: stop function
@@ -99,7 +95,7 @@ if __name__ == "__main__":
     palettes_worksheet.append(["Analyse palettes"])
     palettes_worksheet.append([])
     palettes_worksheet.append(["Lignes avec incohérences :"])
-    palettes_worksheet.append(header_list)
+    palettes_worksheet.append(list(header_columns_id.keys()))
     for row in erroneous_rows:
         palettes_worksheet.append(row)
 
