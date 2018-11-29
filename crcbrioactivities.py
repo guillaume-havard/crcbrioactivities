@@ -11,6 +11,7 @@ RECEIVED_80_PALETTES_RECEIVED_COLUMN_NAME = "Palettes sol 80*120 réellement re�
 RECEIVED_80_EUR_PALETTES_RECEIVED_COLUMN_NAME = "Palettes EUR 80*120 réellement reçues"
 STATUS_COLUMN_NAME = "tStatut"
 LIVRAISON_REELLE_COLUMN_NAME = "TDate livraison réelle"
+BL_COLUMN_NAME = "N° de BdL"
 
 STATUS_OK = "livrée"
 STATUS_NOT_OK = "annulée"
@@ -158,6 +159,54 @@ def add_sheet_date_status(workbook, header_columns, rows):
     palettes_worksheet.append(list(header_columns.keys()))
     for row in rows:
         palettes_worksheet.append(row)
+
+
+def analyse_multiple_bl(sheet, header_columns_id):
+    """
+    TODO
+
+    :param sheet: Sheet with all information.
+    :param header_columns_id: Dict of columns header with their id.
+
+    :return: List of rows to analyse.
+    """
+    try:
+        bl_column = header_columns_id[BL_COLUMN_NAME]
+    except KeyError as error:
+        log.error("The following column is nowhere to be found:", error)
+        # TODO: stop function
+
+    bls = {}
+    for id_row, row in enumerate(sheet.iter_rows(min_row=2, max_row=sheet.max_row)):
+        # TODO: test type of values
+
+        # TODO : multiple BL ?
+        bls[str(row[bl_column].value)] = id_row
+
+    # comptage racine BL
+    bls_histo = {}
+    for bl in bls:
+        bl = str(bl)
+        if bl.find("_") != -1:
+            root_bl = bl[: bl.find("_")]
+        else:
+            root_bl = bl
+        bl_histo_tmp = bls_histo.get(root_bl, [0, []])
+        bl_histo_tmp[1].append(bl)
+        bl_histo_tmp = [bl_histo_tmp[0] + 1, bl_histo_tmp[1]]
+
+        bls_histo[root_bl] = bl_histo_tmp
+
+    erroneous_rows = []
+    for bl in bls_histo:
+        if bls_histo[str(bl)][0] > 1:
+
+            for bl_id in bls_histo[str(bl)][1]:
+                # + 1 because we begin iwith ROW 1 in excel
+                # +1 because we do not take into account the header
+                erroneous_rows.append(sheet[bls[bl_id] + 1 + 1])
+
+    return erroneous_rows
 
 
 if __name__ == "__main__":
