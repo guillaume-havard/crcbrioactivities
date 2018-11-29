@@ -1,6 +1,7 @@
 import openpyxl
 import logging
 import collections
+import datetime
 
 FILENAME = "tests/data/brio.xlsx"
 INITIAL_SHEET_NAME = "Sheet1"
@@ -9,6 +10,7 @@ RECEIVED_100_PALETTES_RECEIVED_COLUMN_NAME = "Palettes sol 100*120 réellement r
 RECEIVED_80_PALETTES_RECEIVED_COLUMN_NAME = "Palettes sol 80*120 réellement reçues"
 RECEIVED_80_EUR_PALETTES_RECEIVED_COLUMN_NAME = "Palettes EUR 80*120 réellement reçues"
 STATUS_COLUMN_NAME = "tStatut"
+LIVRAISON_REELLE_COLUMN_NAME = "TDate livraison réelle"
 
 STATUS_OK = "livrée"
 STATUS_NOT_OK = "annulée"
@@ -104,6 +106,40 @@ def add_sheet_nb_palettes_status(workbook, header_columns, rows):
     palettes_worksheet.append(list(header_columns.keys()))
     for row in rows:
         palettes_worksheet.append(row)
+
+
+def analyse_date_livraison(sheet, header_columns_id):
+    """
+    TODO
+
+    :param sheet: Sheet with all information.
+    :param header_columns_id: Dict of columns header with their id.
+
+    :return: List of rows to analyse.
+    """
+    try:
+        livraison_reelle_column = header_columns_id[LIVRAISON_REELLE_COLUMN_NAME]
+        status_column = header_columns_id[STATUS_COLUMN_NAME]
+    except KeyError as error:
+        log.error("The following column is nowhere to be found:", error)
+        # TODO: stop function
+
+    erroneous_rows = []
+    for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row):
+        # TODO: test type of values
+
+        date_str = row[livraison_reelle_column].value
+        date_year = 0
+        if date_str:
+            if isinstance(date_str, str):
+                date_year = int(date_str[len(date_str) - 4 :])
+            elif isinstance(date_str, datetime.datetime):
+                date_year = date_str.year
+
+        if (not date_str or date_year < 2000) and row[status_column].value == STATUS_OK:
+            erroneous_rows.append(row)
+
+    return erroneous_rows
 
 
 if __name__ == "__main__":
