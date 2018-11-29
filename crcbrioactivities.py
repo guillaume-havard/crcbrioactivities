@@ -142,6 +142,24 @@ def analyse_date_livraison(sheet, header_columns_id):
     return erroneous_rows
 
 
+def add_sheet_date_status(workbook, header_columns, rows):
+    """
+    Add a sheet to the workbook and write information about TODO.
+
+    :param workbook: Where the sheet will be added
+    :param header_columns: Header of rows
+    :param rows: Rows to write
+    """
+    palettes_worksheet = workbook.create_sheet("date")
+
+    palettes_worksheet.append(["Analyse date livraison"])
+    palettes_worksheet.append([])
+    palettes_worksheet.append(["Lignes avec incohérences :"])
+    palettes_worksheet.append(list(header_columns.keys()))
+    for row in rows:
+        palettes_worksheet.append(row)
+
+
 if __name__ == "__main__":
     file = openpyxl.load_workbook(FILENAME, data_only=True)
     print(file.sheetnames)
