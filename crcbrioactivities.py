@@ -256,11 +256,13 @@ if __name__ == "__main__":
         print()
 
     date_erroneous_rows = analyse_date_livraison(sheet, header_columns_id)
+    bl_erroneous_rows = analyse_multiple_bl(sheet, header_columns_id)
     # Creation of a workbook.
     output_workbook = openpyxl.Workbook(write_only=True)
 
     add_sheet_nb_palettes_status(output_workbook, header_columns_id, palettes_erroneous_rows)
 
     add_sheet_date_status(output_workbook, header_columns_id, date_erroneous_rows)
+    add_sheet_bl(output_workbook, header_columns_id, bl_erroneous_rows)
     # save workbook.
     output_workbook.save("analyse.xlsx")
